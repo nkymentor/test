@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naveen • Design Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+
+        /* MY PORTFOLIO / WORKS ghost effect */
+        .portfolio-front {
+            position: relative;
+            z-index: 2;
+            font-size: 2.6rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+        .portfolio-ghost {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            font-size: 4.8rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.07);
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            line-height: 1;
+        }
+        @media (min-width: 768px) {
+            .portfolio-front { font-size: 3.4rem; }
+            .portfolio-ghost { font-size: 6.2rem; }
+        }
+
+        .filter-btn { color: #a1a1aa; transition: all 0.2s ease; }
+        .active-filter { background: #facc15; color: #18181b; border-color: #facc15; }
+
+        .design-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .design-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+        }
+
+        .hero-title { font-size: 3.5rem; line-height: 1.05; }
+        @media (min-width: 768px) { .hero-title { font-size: 5.2rem; } }
+
+        .hero-subtitle { font-size: 1.25rem; white-space: nowrap; }
+        @media (max-width: 768px) { .hero-subtitle { white-space: normal; font-size: 1.1rem; } }
+
+        /* Modal animation */
+        .modal-inner { animation: fadeInScale 0.3s ease forwards; }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Zoom/pan image */
+        #modal-image {
+            transition: transform 0.1s ease-out;
+            cursor: grab;
+            max-height: 72vh;
+            user-select: none;
+        }
+        #modal-image:active { cursor: grabbing; }
+
+        /* Carousel */
+        #carousel-track {
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+            will-change: transform;
+        }
+        .carousel-dot {
+            width: 8px; height: 8px;
+            border-radius: 9999px;
+            background: #52525b;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .carousel-dot.active {
+            background: #facc15;
+            width: 22px;
+        }
+
+        /* Video iframe container */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+        }
+        .video-wrapper iframe,
+        .video-wrapper video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+
+        /* Play overlay on card */
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.35);
+            transition: background 0.2s;
+        }
+        .design-card:hover .play-overlay { background: rgba(0,0,0,0.5); }
+        .play-btn {
+            width: 56px; height: 56px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.2s;
+        }
+        .design-card:hover .play-btn { transform: scale(1.1); }
+
+        /* Carousel page indicator on card */
+        .slide-count-badge {
+            position: absolute;
+            bottom: 10px; right: 10px;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
+            color: #facc15;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white">
+
+    <!-- HERO -->
+    <section class="bg-gradient-to-br from-zinc-900 via-zinc-950 to-black py-24">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="relative inline-flex items-center justify-center mb-6" style="height: 56px; min-width: 340px;">
+                <!-- Ghost text behind -->
+                <span class="portfolio-ghost">WORKS</span>
+                <!-- Foreground MY PORTFOLIO text -->
+                <span class="portfolio-front"><span class="text-white">MY</span> <span class="text-yellow-400">PORTFOLIO</span></span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FILTERS -->
+    <div class="max-w-7xl mx-auto px-6 py-8 sticky top-0 z-50" style="background: rgba(9,9,11,0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+        <div class="flex justify-center">
+            <div class="flex flex-wrap gap-3 justify-center" id="filter-buttons">
+                <button onclick="filterCategory('all')" class="active-filter filter-btn px-6 py-3 text-sm rounded-3xl border border-transparent">All Designs</button>
+                <button onclick="filterCategory('static')" class="filter-btn px-6 py-3 text-sm rounded-3xl border border-zinc-700 hover:border-zinc-400">Static Post</button>
+                <button onclick="filterCategory('carousel')" class="filter-btn px-6 py-3 text-sm rounded-3xl border border-zinc-700 hover:border-zinc-400">Carousel</button>
+                <button onclick="filterCategory('gif')" class="filter-btn px-6 py-3 text-sm rounded-3xl border border-zinc-700 hover:border-zinc-400">GIF</button>
+                <button onclick="filterCategory('video')" class="filter-btn px-6 py-3 text-sm rounded-3xl border border-zinc-700 hover:border-zinc-400">Video</button>
+                <button onclick="filterCategory('motion')" class="filter-btn px-6 py-3 text-sm rounded-3xl border border-zinc-700 hover:border-zinc-400">Motion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRID -->
+    <section class="max-w-7xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="design-grid"></div>
+    </section>
+
+    <footer class="border-t border-zinc-900 py-8">
+        <div class="max-w-7xl mx-auto px-6 flex justify-center">
+            <a href="admin.html" class="text-zinc-600 hover:text-zinc-400 text-xs transition-colors flex items-center gap-1.5">
+                <i class="fa-solid fa-lock text-[10px]"></i> Admin
+            </a>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+         LIGHTBOX MODAL
+         ============================================================ -->
+    <div id="modal" class="hidden fixed inset-0 bg-black z-[100] flex items-center justify-center">
+        <!-- Close button -->
+        <button onclick="closeModal()" class="absolute top-5 right-5 z-[110] w-10 h-10 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-xmark text-white"></i>
+        </button>
+        <!-- Zoom controls (shown for static/gif) -->
+        <div id="modal-controls" class="absolute top-5 left-5 z-[110] flex items-center gap-2"></div>
+        <!-- Body fills full screen -->
+        <div id="modal-body" class="w-full h-full flex items-center justify-center"></div>
+        <!-- Hidden fields kept for JS compatibility -->
+        <span id="modal-title" class="hidden"></span>
+        <span id="modal-type" class="hidden"></span>
+        <p id="modal-desc" class="hidden"></p>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'showcase_designs';
+
+        /* ── Default data (matches admin defaults) ── */
+        const defaultDesigns = [
+            { id: 1, title: "Minimal Product Launch", category: "static", type: "Static Post", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Product+Launch", desc: "Clean and elegant product announcement post for Instagram." },
+            { id: 2, title: "Brand Story Carousel", category: "carousel", type: "Carousel", images: ["https://placehold.co/1400x1800/1c1c1c/facc15?text=Brand+Story+1","https://placehold.co/1400x1800/111827/facc15?text=Brand+Story+2","https://placehold.co/1400x1800/0f172a/facc15?text=Brand+Story+3"], desc: "6-slide brand journey carousel with smooth storytelling." },
+            { id: 3, title: "Loading Animation GIF", category: "gif", type: "GIF", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=GIF+Animation", desc: "Premium loading animation for better user experience." },
+            { id: 4, title: "Product Explainer Video", category: "video", type: "Video", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Product+Video", desc: "60-second cinematic product explainer video." },
+            { id: 5, title: "Fluid Logo Reveal", category: "motion", type: "Motion", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Logo+Reveal", desc: "Elegant logo animation with fluid motion." },
+            { id: 6, title: "Festival Campaign", category: "static", type: "Static Post", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Festival+Campaign", desc: "Vibrant festival season promotional post." },
+            { id: 7, title: "App Feature Highlights", category: "carousel", type: "Carousel", images: ["https://placehold.co/1400x1800/1c1c1c/facc15?text=App+Feature+1","https://placehold.co/1400x1800/111827/facc15?text=App+Feature+2"], desc: "Feature showcase carousel for mobile app." },
+            { id: 8, title: "Reaction GIF Pack", category: "gif", type: "GIF", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Reaction+GIF", desc: "Set of expressive reaction GIFs." },
+            { id: 9, title: "Behind the Scenes", category: "video", type: "Video", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Behind+the+Scenes", desc: "Documentary-style behind the scenes reel." },
+            { id: 10, title: "Kinetic Typography", category: "motion", type: "Motion", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Brand+Story+1", desc: "Dynamic typography animation." }
+        ];
+
+        function loadDesigns() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    // Reset if stored data has old broken picsum /id/ URLs
+                    if (JSON.stringify(parsed).includes('picsum.photos/id/')) {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDesigns));
+                        return JSON.parse(JSON.stringify(defaultDesigns));
+                    }
+                    return parsed;
+                }
+            } catch (e) { console.error(e); }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDesigns));
+            return JSON.parse(JSON.stringify(defaultDesigns));
+        }
+
+        let designs = loadDesigns();
+
+        // ---------- Google Drive link converter (safety net, mirrors admin.html) ----------
+        function convertGoogleDriveLink(url) {
+            if (!url) return url;
+            url = url.trim();
+            if (!url.includes('drive.google.com')) return url;
+
+            let fileId = null;
+            let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (m) fileId = m[1];
+            if (!fileId) { m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/); if (m) fileId = m[1]; }
+            if (!fileId) { m = url.match(/\/d\/([a-zA-Z0-9_-]+)/); if (m) fileId = m[1]; }
+
+            if (!fileId) return url;
+            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+        }
+
+        /* ─────────────────────────────────────────────
+           GRID CARDS
+        ───────────────────────────────────────────── */
+        function getCardThumb(d) {
+            if (d.category === 'carousel') return convertGoogleDriveLink((d.images && d.images[0]) || '');
+            if (d.category === 'video' || d.category === 'motion') return convertGoogleDriveLink(d.thumbnail || '');
+            return convertGoogleDriveLink(d.image || '');
+        }
+
+        function createCard(d) {
+            const thumb = getCardThumb(d);
+            const isVideo = d.category === 'video' || d.category === 'motion';
+            const isCarousel = d.category === 'carousel';
+            const slideCount = isCarousel ? (d.images || []).length : 0;
+
+            return `
+            <div onclick="openModal(${d.id})" class="design-card rounded-3xl overflow-hidden cursor-pointer group">
+                <div class="relative">
+                    <img src="${escapeAttr(thumb)}" alt="${escapeAttr(d.title)}" class="w-full h-[420px] object-cover object-top transition-transform group-hover:scale-105">
+                    <div class="absolute top-5 right-5 px-4 py-1.5 bg-black/70 text-xs font-medium rounded-3xl backdrop-blur-md">
+                        ${d.type}
+                    </div>
+                    ${isVideo ? `<div class="play-overlay"><div class="play-btn"><i class="fa-solid fa-play text-white ml-1"></i></div></div>` : ''}
+                    ${isCarousel && slideCount > 1 ? `<div class="slide-count-badge">${slideCount} slides</div>` : ''}
+                </div>
+
+            </div>`;
+        }
+
+        function renderDesigns(filtered) {
+            document.getElementById('design-grid').innerHTML = filtered.map(d => createCard(d)).join('');
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('#filter-buttons button').forEach(btn => {
+                btn.classList.remove('active-filter');
+                btn.classList.add('filter-btn');
+                if ((cat === 'all' && btn.textContent === 'All Designs') ||
+                    (cat !== 'all' && btn.textContent.toLowerCase().replace(' ', '') === cat.toLowerCase())) {
+                    btn.classList.add('active-filter');
+                }
+            });
+            const filtered = cat === 'all' ? designs : designs.filter(d => d.category === cat);
+            renderDesigns(filtered);
+        }
+
+        /* ─────────────────────────────────────────────
+           LIGHTBOX MODAL
+        ───────────────────────────────────────────── */
+        let currentScale = 1, currentX = 0, currentY = 0;
+        let isDragging = false, startX, startY;
+        let carouselIndex = 0;
+        let carouselImages = [];
+
+        function openModal(id) {
+            const d = designs.find(x => x.id === id);
+            if (!d) return;
+
+            const body = document.getElementById('modal-body');
+            const controls = document.getElementById('modal-controls');
+            controls.innerHTML = '';
+
+            if (d.category === 'static' || d.category === 'gif') {
+                // ── Full-screen image / GIF viewer with zoom+pan ──
+                currentScale = 1; currentX = 0; currentY = 0;
+                body.innerHTML = `
+                    <div id="img-container" class="flex items-center justify-center w-full h-full" style="touch-action:none;">
+                        <img id="modal-image" src="${escapeAttr(convertGoogleDriveLink(d.image))}" alt="${escapeAttr(d.title)}"
+                            style="max-height:100vh; max-width:100vw; width:auto; height:auto; cursor:grab; user-select:none; display:block;">
+                    </div>`;
+                controls.innerHTML = `
+                    <button onclick="zoomIn()" class="px-3 py-2 bg-black/50 backdrop-blur hover:bg-black/70 rounded-xl transition-colors" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button onclick="zoomOut()" class="px-3 py-2 bg-black/50 backdrop-blur hover:bg-black/70 rounded-xl transition-colors" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <button onclick="resetZoom()" class="px-4 py-2 text-sm bg-black/50 backdrop-blur hover:bg-black/70 rounded-xl transition-colors">Reset</button>`;
+                setupZoom();
+
+            } else if (d.category === 'carousel') {
+                // ── Full-screen carousel viewer ──
+                carouselImages = d.images || [];
+                carouselIndex = 0;
+                body.innerHTML = buildCarouselHTML();
+                controls.innerHTML = `
+                    <span id="slide-counter" class="text-white text-sm font-medium bg-black/50 backdrop-blur px-3 py-2 rounded-xl">1 / ${carouselImages.length}</span>`;
+
+            } else {
+                // ── Video / Motion: full-screen iframe ──
+                const embed = getVideoEmbed(d.videoUrl);
+                body.innerHTML = `<div class="w-full h-full p-8 flex items-center"><div class="video-wrapper rounded-2xl overflow-hidden w-full">${embed}</div></div>`;
+            }
+
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            if (document.fullscreenElement) document.exitFullscreen();
+            // Stop any playing video by clearing body
+            document.getElementById('modal-body').innerHTML = '';
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+        }
+
+        /* ── Video URL → embed HTML ── */
+        function getVideoEmbed(url) {
+            if (!url) return '<p class="text-zinc-500 p-8">No video URL set.</p>';
+
+            // YouTube
+            const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_\-]{11})/);
+            if (ytMatch) {
+                return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+            }
+
+            // Vimeo
+            const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+            if (vimeoMatch) {
+                return `<iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
+            }
+
+            // Direct video file
+            if (/\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)) {
+                return `<video controls autoplay src="${escapeAttr(url)}" style="background:#000;" class="rounded-xl"></video>`;
+            }
+
+            // Unknown — try as iframe
+            return `<iframe src="${escapeAttr(url)}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        }
+
+        /* ── Carousel HTML ── */
+        function buildCarouselHTML() {
+            if (!carouselImages.length) return '<p class="text-zinc-500 p-8 text-center">No slides added.</p>';
+
+            const slides = carouselImages.map((img, i) => `
+                <div class="flex-shrink-0 w-full flex items-center justify-center" style="height:100vh;">
+                    <img src="${escapeAttr(convertGoogleDriveLink(img))}" alt="Slide ${i+1}" style="max-height:100vh; max-width:100vw; width:auto; height:auto; display:block; object-fit:contain;">
+                </div>`).join('');
+
+            const dots = carouselImages.map((_, i) =>
+                `<div class="carousel-dot ${i===0?'active':''}" onclick="goToSlide(${i})"></div>`).join('');
+
+            return `
+            <div class="relative overflow-hidden w-full" style="height:100vh;">
+                <!-- Track -->
+                <div id="carousel-track" class="flex" style="height:100%;">${slides}</div>
+                <!-- Prev / Next -->
+                ${carouselImages.length > 1 ? `
+                <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 backdrop-blur-sm hover:bg-black/80 flex items-center justify-center transition-colors z-10">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                </button>
+                <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 backdrop-blur-sm hover:bg-black/80 flex items-center justify-center transition-colors z-10">
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                </button>` : ''}
+                <!-- Dots -->
+                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-center">${dots}</div>
+            </div>`;
+        }
+
+        function updateCarousel() {
+            const track = document.getElementById('carousel-track');
+            if (track) track.style.transform = `translateX(-${carouselIndex * 100}%)`;
+            const counter = document.getElementById('slide-counter');
+            if (counter) counter.textContent = `${carouselIndex + 1} / ${carouselImages.length}`;
+            document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === carouselIndex);
+            });
+        }
+
+        function nextSlide() {
+            carouselIndex = (carouselIndex + 1) % carouselImages.length;
+            updateCarousel();
+        }
+        function prevSlide() {
+            carouselIndex = (carouselIndex - 1 + carouselImages.length) % carouselImages.length;
+            updateCarousel();
+        }
+        function goToSlide(i) {
+            carouselIndex = i;
+            updateCarousel();
+        }
+
+        // Touch swipe for carousel
+        let touchStartX = 0;
+        document.getElementById('modal').addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+        document.getElementById('modal').addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50 && carouselImages.length > 1) {
+                diff > 0 ? nextSlide() : prevSlide();
+            }
+        });
+
+        /* ── Zoom / Pan for image ── */
+        function getModalImage() { return document.getElementById('modal-image'); }
+        function getImgContainer() { return document.getElementById('img-container'); }
+
+        function updateTransform() {
+            const img = getModalImage();
+            if (img) img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+        }
+
+        function zoomIn() { currentScale = Math.min(currentScale + 0.3, 5); updateTransform(); }
+        function zoomOut() { currentScale = Math.max(currentScale - 0.3, 0.5); updateTransform(); }
+        function resetZoom() { currentScale=1; currentX=0; currentY=0; updateTransform(); }
+
+        function setupZoom() {
+            // Short delay to wait for DOM
+            setTimeout(() => {
+                const img = getModalImage();
+                const container = getImgContainer();
+                if (!img || !container) return;
+
+                container.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    currentScale = Math.max(0.5, Math.min(5, currentScale + (e.deltaY > 0 ? -0.2 : 0.2)));
+                    updateTransform();
+                }, { passive: false });
+
+                img.addEventListener('mousedown', (e) => {
+                    if (currentScale <= 1) return;
+                    isDragging = true;
+                    startX = e.clientX - currentX;
+                    startY = e.clientY - currentY;
+                });
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    currentX = e.clientX - startX;
+                    currentY = e.clientY - startY;
+                    updateTransform();
+                });
+                document.addEventListener('mouseup', () => { isDragging = false; });
+
+                img.addEventListener('dblclick', () => {
+                    currentScale = currentScale > 1 ? 1 : 2.5;
+                    updateTransform();
+                });
+            }, 50);
+        }
+
+        /* ── Fullscreen ── */
+        function toggleFullscreen() {
+            const modalEl = document.getElementById('modal');
+            if (!document.fullscreenElement) {
+                modalEl.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        /* ── Close handlers ── */
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowRight' && carouselImages.length) nextSlide();
+            if (e.key === 'ArrowLeft' && carouselImages.length) prevSlide();
+        });
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modal')) closeModal();
+        });
+
+        /* ── Helpers ── */
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        function escapeAttr(str) { return escapeHtml(str); }
+
+        /* ── Init ── */
+        window.onload = () => renderDesigns(designs);
+
+        // Sync when admin makes changes in another tab
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY) location.reload();
+        });
+        window.addEventListener('focus', () => {
+            const fresh = JSON.stringify(loadDesigns());
+            if (fresh !== JSON.stringify(designs)) location.reload();
+        });
+    </script>
+</body>
+</html>

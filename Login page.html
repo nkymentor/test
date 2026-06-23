@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Naveen Design</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .monkey {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 6.5rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-white">
+
+  <div class="max-w-md w-full mx-auto glass rounded-3xl shadow-2xl overflow-hidden border border-white/10">
+    
+    <!-- Monkey Section -->
+    <div class="pt-12 pb-8 flex justify-center">
+      <div id="monkey" class="monkey cursor-pointer select-none">
+        🙈
+      </div>
+    </div>
+
+    <div class="px-10 pb-12">
+      <h1 class="text-3xl font-semibold text-center">Enter Password</h1>
+      <p class="text-center text-gray-400 mt-3 text-sm leading-relaxed">
+        Two-Step Verification enabled.<br>
+        Your account is protected with an additional password.
+      </p>
+
+      <div class="mt-10">
+        <label class="block text-sm font-medium text-gray-400 mb-2">PASSWORD</label>
+        
+        <div class="relative">
+          <input 
+            id="passwordInput"
+            type="password"
+            placeholder="Enter your password"
+            class="w-full bg-zinc-900 border border-white/20 focus:border-yellow-400 rounded-2xl px-6 py-5 text-lg outline-none transition-all placeholder:text-gray-500"
+          >
+          
+          <!-- Toggle Button -->
+          <button id="toggleBtn"
+                  class="absolute right-6 top-1/2 -translate-y-1/2 text-2xl text-gray-400 hover:text-white transition-colors">
+            👁️
+          </button>
+        </div>
+      </div>
+
+      <button onclick="handleLogin()"
+              class="w-full mt-8 bg-yellow-500 hover:bg-yellow-400 transition-all text-black font-semibold py-5 rounded-2xl text-lg tracking-wider shadow-lg">
+        NEXT
+      </button>
+
+      <div class="flex justify-center gap-6 mt-8 text-sm">
+        <a href="#" class="text-gray-400 hover:text-white transition-colors">Forgot Password?</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const passwordInput = document.getElementById('passwordInput');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const monkey = document.getElementById('monkey');
+
+    let isPasswordVisible = false;
+
+    function updateMonkey() {
+      if (isPasswordVisible) {
+        monkey.textContent = '🙉';   // Eyes open
+      } else {
+        monkey.textContent = '🙈';   // Eyes covered
+      }
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      isPasswordVisible = !isPasswordVisible;
+      
+      if (isPasswordVisible) {
+        passwordInput.type = 'text';
+        toggleBtn.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleBtn.textContent = '👁️';
+      }
+      
+      updateMonkey();
+    });
+
+    // Enter key support
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    function handleLogin() {
+      const pass = passwordInput.value.trim();
+      if (pass === '') {
+        alert("Please enter your password");
+        return;
+      }
+      alert("✅ Login Successful! (Demo Mode)");
+    }
+
+    // Initialize
+    updateMonkey();
+  </script>
+</body>
+</html>

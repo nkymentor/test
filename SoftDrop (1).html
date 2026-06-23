@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Software Downloads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #09090b;
+    --surface:  #18181b;
+    --card:     #18181b;
+    --border:   #27272a;
+    --border2:  #3f3f46;
+    --accent:   #facc15;
+    --accent2:  #eab308;
+    --yellow:   #facc15;
+    --text:     #ffffff;
+    --muted:    #71717a;
+    --dim:      #a1a1aa;
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --radius:   10px;
+    --font:     'Space Grotesk', sans-serif;
+    --mono:     'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,13,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; text-decoration: none; color: var(--text);
+  }
+  .nav-logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #18181b; font-weight: 700;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-tabs {
+    display: flex; gap: 2px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 3px;
+  }
+  .nav-tab {
+    display: flex; align-items: center; gap-6px; gap: 6px;
+    padding: 6px 14px; border-radius: 6px; border: none;
+    background: transparent; color: var(--muted); font-family: var(--font);
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s; white-space: nowrap;
+    text-decoration: none;
+  }
+  .nav-tab:hover { color: var(--text); background: var(--border); }
+  .nav-tab.active { background: var(--accent); color: #000; font-weight: 600; }
+  .nav-tab img { width: 16px; height: 16px; }
+  .nav-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0 14px; height: 36px;
+  }
+  .nav-search input {
+    background: none; border: none; outline: none; color: var(--text);
+    font-family: var(--font); font-size: 13px; width: 180px;
+  }
+  .nav-search input::placeholder { color: var(--muted); }
+  .nav-search i { color: var(--muted); font-size: 13px; }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 56px 24px 40px;
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 40px;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: block; width: 24px; height: 1px; background: var(--accent);
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700;
+    letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 16px;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero-sub { color: var(--dim); font-size: 15px; max-width: 460px; line-height: 1.65; margin-bottom: 28px; }
+  .hero-stats {
+    display: flex; gap: 32px;
+  }
+  .hero-stat-num {
+    font-family: var(--mono); font-size: 1.5rem; font-weight: 500; color: var(--text);
+  }
+  .hero-stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .hero-art {
+    display: flex; flex-direction: column; gap: 8px;
+    opacity: 0.85;
+  }
+  .hero-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 12px; font-family: var(--mono);
+    white-space: nowrap;
+  }
+  .hero-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .hero-pill span { color: var(--muted); }
+  .hero-pill strong { color: var(--text); }
+
+  /* ─── LAYOUT ─── */
+  .page { max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 28px; align-items: start; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { position: sticky; top: 72px; }
+  .sidebar-section { margin-bottom: 28px; }
+  .sidebar-label {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 8px; padding: 0 4px;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; border-radius: var(--radius); cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--dim);
+    transition: all 0.15s; text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .sidebar-link:hover { background: var(--surface); color: var(--text); border-color: var(--border); }
+  .sidebar-link.active { background: rgba(250,204,21,0.08); color: var(--accent); border-color: rgba(250,204,21,0.2); }
+  .sidebar-link .cat-icon { font-size: 14px; margin-right: 8px; }
+  .sidebar-count {
+    font-family: var(--mono); font-size: 10px;
+    background: var(--border); color: var(--muted);
+    padding: 2px 7px; border-radius: 20px;
+  }
+  .sidebar-link.active .sidebar-count { background: rgba(250,204,21,0.15); color: var(--accent); }
+
+  /* ─── MAIN ─── */
+  .main { min-width: 0; }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title-bar {
+    width: 3px; height: 18px; border-radius: 2px; background: var(--accent);
+  }
+  .section-more {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    text-decoration: none; letter-spacing: 0.05em;
+    transition: opacity 0.15s;
+  }
+  .section-more:hover { opacity: 0.7; }
+
+  /* ─── SOFTWARE CARD ─── */
+  .software-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 40px; }
+
+  .sw-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: border-color 0.18s, transform 0.18s;
+    cursor: pointer; position: relative; overflow: hidden;
+  }
+  .sw-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(250,204,21,0.03) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .sw-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .sw-card:hover::before { opacity: 1; }
+
+  .sw-card-top { display: flex; align-items: flex-start; gap: 12px; }
+  .sw-icon {
+    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .sw-info { flex: 1; min-width: 0; }
+  .sw-name {
+    font-size: 13px; font-weight: 600; line-height: 1.3;
+    color: var(--text); margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sw-version {
+    font-family: var(--mono); font-size: 10px; color: var(--muted);
+  }
+  .sw-new-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--accent); color: #000;
+    font-size: 9px; font-weight: 700; font-family: var(--mono);
+    letter-spacing: 0.06em; padding: 2px 7px; border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  .sw-meta {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .sw-tag {
+    font-family: var(--mono); font-size: 10px;
+    padding: 3px 8px; border-radius: 4px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .sw-tag.os { background: rgba(99,102,241,0.12); color: #818cf8; border: 1px solid rgba(99,102,241,0.2); }
+  .sw-tag.size { background: rgba(250,204,21,0.08); color: var(--yellow); border: 1px solid rgba(250,204,21,0.15); }
+  .sw-tag.bit { background: rgba(34,197,94,0.08); color: var(--green); border: 1px solid rgba(34,197,94,0.15); }
+
+  .sw-desc {
+    font-size: 12px; color: var(--muted); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .sw-actions { display: flex; gap: 8px; margin-top: auto; }
+  .btn-dl {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+    background: var(--accent); color: #000;
+    border: none; border-radius: 7px; padding: 9px 14px;
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s; text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+  .btn-dl:hover { opacity: 0.85; }
+  .btn-save {
+    width: 36px; height: 36px; border-radius: 7px; border: 1px solid var(--border2);
+    background: var(--surface); color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s; font-size: 13px;
+  }
+  .btn-save:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── FEATURED ROW ─── */
+  .featured-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 40px; }
+  .sw-featured {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    display: flex; gap: 16px; align-items: center;
+    transition: border-color 0.18s; cursor: pointer;
+    position: relative; overflow: hidden;
+  }
+  .sw-featured::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .sw-featured:hover { border-color: rgba(250,204,21,0.3); }
+  .sw-featured-icon {
+    width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
+  }
+  .sw-featured-body { flex: 1; min-width: 0; }
+  .sw-featured-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .sw-featured-sub { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .sw-featured-tags { display: flex; gap: 6px; }
+
+  /* ─── LOAD MORE ─── */
+  .load-more {
+    display: flex; justify-content: center; margin-bottom: 40px;
+  }
+  .btn-more {
+    background: var(--surface); border: 1px solid var(--border2);
+    color: var(--dim); font-family: var(--font); font-size: 13px; font-weight: 500;
+    padding: 10px 28px; border-radius: 8px; cursor: pointer;
+    transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-more:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── TICKER ─── */
+  .ticker-bar {
+    background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 8px 0; margin-bottom: 32px; overflow: hidden; position: relative;
+  }
+  .ticker-inner {
+    display: flex; gap: 48px; animation: ticker 28s linear infinite; white-space: nowrap;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
+  .ticker-inner span { color: var(--accent); }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 24px;
+    max-width: 1200px; margin-left: auto; margin-right: auto;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--muted);
+  }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+  .footer-links a:hover { color: var(--accent); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 860px) {
+    .page { grid-template-columns: 1fr; }
+    .sidebar { position: static; display: flex; flex-wrap: wrap; gap: 6px; }
+    .sidebar-section { margin-bottom: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+    .sidebar-label { display: none; }
+    .featured-grid { grid-template-columns: 1fr; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-art { display: none; }
+    .nav-tabs { display: none; }
+  }
+  @media (max-width: 540px) {
+    .software-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon"><i class="fa-solid fa-arrow-down"></i></div>
+    Software<span>Downloads</span>
+  </a>
+  <div class="nav-tabs">
+    <a class="nav-tab active" href="#"><i class="fa-brands fa-windows" style="font-size:13px;"></i> Windows</a>
+    <a class="nav-tab" href="#"><i class="fa-brands fa-android" style="font-size:13px;"></i> Android</a>
+    <a class="nav-tab" href="#"><i class="fa-brands fa-apple" style="font-size:13px;"></i> macOS</a>
+    <a class="nav-tab" href="#"><i class="fa-solid fa-book" style="font-size:12px;"></i> E-Books</a>
+  </div>
+  <div class="nav-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" placeholder="Search software…">
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <span>NEW</span> Adobe Photoshop 2025 v26 &nbsp;·&nbsp;
+    <span>NEW</span> AutoCAD 2026.1 &nbsp;·&nbsp;
+    <span>NEW</span> 3ds Max 2026.3 &nbsp;·&nbsp;
+    <span>NEW</span> DaVinci Resolve 20 &nbsp;·&nbsp;
+    <span>NEW</span> Premiere Pro 2025 &nbsp;·&nbsp;
+    <span>NEW</span> Blender 4.3 &nbsp;·&nbsp;
+    <span>NEW</span> Adobe Illustrator 2025 &nbsp;·&nbsp;
+    <span>NEW</span> Vegas Pro 22 &nbsp;·&nbsp;
+    <!-- duplicate for seamless loop -->
+    <span>NEW</span> Adobe Photoshop 2025 v26 &nbsp;·&nbsp;
+    <span>NEW</span> AutoCAD 2026.1 &nbsp;·&nbsp;
+    <span>NEW</span> 3ds Max 2026.3 &nbsp;·&nbsp;
+    <span>NEW</span> DaVinci Resolve 20 &nbsp;·&nbsp;
+    <span>NEW</span> Premiere Pro 2025 &nbsp;·&nbsp;
+    <span>NEW</span> Blender 4.3 &nbsp;·&nbsp;
+    <span>NEW</span> Adobe Illustrator 2025 &nbsp;·&nbsp;
+    <span>NEW</span> Vegas Pro 22 &nbsp;·&nbsp;
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-eyebrow">Free Software Collection</div>
+    <h1>Every tool you need,<br><em>always free.</em></h1>
+    <p class="hero-sub">Direct download links for Windows, macOS & Android. No registration, no ads, no limits. Updated daily with the latest versions.</p>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">4,200+</div>
+        <div class="hero-stat-label">Programs</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">38</div>
+        <div class="hero-stat-label">Categories</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">Daily</div>
+        <div class="hero-stat-label">Updates</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-art">
+    <div class="hero-pill"><div class="hero-pill-dot"></div><strong>Adobe Premiere Pro</strong><span>2025 · 1.8 GB</span></div>
+    <div class="hero-pill"><div class="hero-pill-dot"></div><strong>AutoCAD 2026</strong><span>64Bit · 3.2 GB</span></div>
+    <div class="hero-pill"><div class="hero-pill-dot"></div><strong>DaVinci Resolve 20</strong><span>Free · 2.4 GB</span></div>
+    <div class="hero-pill"><div class="hero-pill-dot"></div><strong>Blender 4.3</strong><span>Win/Mac · 220 MB</span></div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Categories</div>
+      <a class="sidebar-link active" href="#autodesk"><span class="cat-icon">🏗</span>Autodesk<span class="sidebar-count">28</span></a>
+      <a class="sidebar-link" href="#adobe"><span class="cat-icon">🎨</span>Adobe<span class="sidebar-count">22</span></a>
+      <a class="sidebar-link" href="#video"><span class="cat-icon">🎬</span>Video & Audio<span class="sidebar-count">41</span></a>
+      <a class="sidebar-link" href="#browsers"><span class="cat-icon">🌐</span>Browsers<span class="sidebar-count">14</span></a>
+      <a class="sidebar-link" href="#security"><span class="cat-icon">🛡</span>Security<span class="sidebar-count">19</span></a>
+      <a class="sidebar-link" href="#office"><span class="cat-icon">📄</span>Office<span class="sidebar-count">11</span></a>
+      <a class="sidebar-link" href="#dev"><span class="cat-icon">💻</span>Developer Tools<span class="sidebar-count">33</span></a>
+      <a class="sidebar-link" href="#system"><span class="cat-icon">⚙️</span>System Tools<span class="sidebar-count">27</span></a>
+      <a class="sidebar-link" href="#3d"><span class="cat-icon">📐</span>3D & CAD<span class="sidebar-count">18</span></a>
+      <a class="sidebar-link" href="#games"><span class="cat-icon">🎮</span>Games & Emulators<span class="sidebar-count">9</span></a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Platform</div>
+      <a class="sidebar-link" href="#"><i class="fa-brands fa-windows" style="margin-right:8px;font-size:12px;"></i>Windows<span class="sidebar-count">64</span></a>
+      <a class="sidebar-link" href="#"><i class="fa-brands fa-android" style="margin-right:8px;font-size:12px;"></i>Android<span class="sidebar-count">32</span></a>
+      <a class="sidebar-link" href="#"><i class="fa-brands fa-apple" style="margin-right:8px;font-size:12px;"></i>macOS<span class="sidebar-count">18</span></a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- FEATURED -->
+    <div class="section-header">
+      <div class="section-title"><div class="section-title-bar"></div>Featured Releases</div>
+      <a class="section-more" href="#">VIEW ALL →</a>
+    </div>
+    <div class="featured-grid">
+      <div class="sw-featured">
+        <div class="sw-featured-icon" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">🎨</div>
+        <div class="sw-featured-body">
+          <div class="sw-featured-name">Adobe Photoshop 2025</div>
+          <div class="sw-featured-sub">v26.0 · 2.1 GB · Windows 64-bit</div>
+          <div class="sw-featured-tags">
+            <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Win</span>
+            <span class="sw-tag size">2.1 GB</span>
+            <span class="sw-tag bit">64-bit</span>
+          </div>
+        </div>
+        <a class="btn-dl" href="#" style="width:auto;padding:8px 16px;flex-shrink:0;"><i class="fa-solid fa-download"></i></a>
+      </div>
+      <div class="sw-featured">
+        <div class="sw-featured-icon" style="background:linear-gradient(135deg,#1a0a00,#2d1600);">🏗</div>
+        <div class="sw-featured-body">
+          <div class="sw-featured-name">AutoCAD 2026.1</div>
+          <div class="sw-featured-sub">v2026.1.1 · 3.22 GB · Windows 64-bit</div>
+          <div class="sw-featured-tags">
+            <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Win</span>
+            <span class="sw-tag size">3.22 GB</span>
+            <span class="sw-tag bit">64-bit</span>
+          </div>
+        </div>
+        <a class="btn-dl" href="#" style="width:auto;padding:8px 16px;flex-shrink:0;"><i class="fa-solid fa-download"></i></a>
+      </div>
+    </div>
+
+    <!-- AUTODESK -->
+    <div id="autodesk" class="section-header">
+      <div class="section-title"><div class="section-title-bar"></div>Autodesk Products</div>
+      <a class="section-more" href="#">VIEW ALL →</a>
+    </div>
+    <div class="software-grid">
+
+      <div class="sw-card">
+        <div class="sw-new-badge">NEW</div>
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#1a0a00,#3d1f00);">🏗</div>
+          <div class="sw-info">
+            <div class="sw-name">Autodesk AutoCAD</div>
+            <div class="sw-version">v2026.1.1</div>
+          </div>
+        </div>
+        <div class="sw-desc">Features an easy-to-use interface and a comprehensive set of tools for precise and advanced design.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">3.22 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-new-badge">NEW</div>
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#001a1a,#003d3d);">📐</div>
+          <div class="sw-info">
+            <div class="sw-name">Autodesk 3ds Max</div>
+            <div class="sw-version">v2026.3</div>
+          </div>
+        </div>
+        <div class="sw-desc">Professional 3D design and animation software for visualization, modeling and rendering.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">5.6 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-new-badge">NEW</div>
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#0a001a,#1f0040);">🗺</div>
+          <div class="sw-info">
+            <div class="sw-name">AutoCAD Map 3D</div>
+            <div class="sw-version">v2027</div>
+          </div>
+        </div>
+        <div class="sw-desc">Autocad program to draw 3D architectural and geospatial mapping plans with GIS integration.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">3.8 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#001a08,#003d1a);">🔧</div>
+          <div class="sw-info">
+            <div class="sw-name">Autodesk Inventor</div>
+            <div class="sw-version">v2026 Professional</div>
+          </div>
+        </div>
+        <div class="sw-desc">Mechanical design and 3D CAD software for product simulation and engineering workflows.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">8.1 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#1a1000,#3d2800);">🌊</div>
+          <div class="sw-info">
+            <div class="sw-name">Autodesk CFD</div>
+            <div class="sw-version">v2027 Ultimate</div>
+          </div>
+        </div>
+        <div class="sw-desc">Fluid simulation and heat transfer analysis software from Autodesk for engineers.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">3 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#1a0010,#3d0030);">⚡</div>
+          <div class="sw-info">
+            <div class="sw-name">AutoCAD Electrical</div>
+            <div class="sw-version">v2026</div>
+          </div>
+        </div>
+        <div class="sw-desc">Electrical control design software with automated tasks for panel layouts and schematic diagrams.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">4.2 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+    </div>
+    <div class="load-more">
+      <button class="btn-more"><i class="fa-solid fa-plus"></i> Load More Autodesk</button>
+    </div>
+
+    <!-- ADOBE -->
+    <div id="adobe" class="section-header">
+      <div class="section-title"><div class="section-title-bar"></div>Adobe Creative Cloud</div>
+      <a class="section-more" href="#">VIEW ALL →</a>
+    </div>
+    <div class="software-grid">
+
+      <div class="sw-card">
+        <div class="sw-new-badge">NEW</div>
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#1a001a,#3d0050);">🎨</div>
+          <div class="sw-info">
+            <div class="sw-name">Adobe Photoshop 2025</div>
+            <div class="sw-version">v26.0</div>
+          </div>
+        </div>
+        <div class="sw-desc">Industry-leading image editing software with AI-powered tools for designers and photographers.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">2.1 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-new-badge">NEW</div>
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#1a0500,#3d1200);">🎬</div>
+          <div class="sw-info">
+            <div class="sw-name">Adobe Premiere Pro 2025</div>
+            <div class="sw-version">v25.0</div>
+          </div>
+        </div>
+        <div class="sw-desc">Professional video editing for film, TV and web with seamless Creative Cloud integration.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">1.8 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#00101a,#00253d);">✨</div>
+          <div class="sw-info">
+            <div class="sw-name">Adobe After Effects 2025</div>
+            <div class="sw-version">v25.0</div>
+          </div>
+        </div>
+        <div class="sw-desc">Motion graphics and visual effects software for cinematic-quality compositing and animation.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">2.6 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#001a10,#003d25);">🖊</div>
+          <div class="sw-info">
+            <div class="sw-name">Adobe Illustrator 2025</div>
+            <div class="sw-version">v29.0</div>
+          </div>
+        </div>
+        <div class="sw-desc">Vector graphics editor for logos, icons, illustrations and complex artwork with precision tools.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">1.9 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#10001a,#28003d);">📱</div>
+          <div class="sw-info">
+            <div class="sw-name">Adobe XD 2024</div>
+            <div class="sw-version">v58.1</div>
+          </div>
+        </div>
+        <div class="sw-desc">UI/UX design and prototyping tool for websites and mobile apps with real-time collaboration.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">890 MB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#1a1000,#3d2500);">🔊</div>
+          <div class="sw-info">
+            <div class="sw-name">Adobe Audition 2025</div>
+            <div class="sw-version">v25.0</div>
+          </div>
+        </div>
+        <div class="sw-desc">Professional audio workstation for recording, mixing and restoring audio with AI tools.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">1.1 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+    </div>
+    <div class="load-more">
+      <button class="btn-more"><i class="fa-solid fa-plus"></i> Load More Adobe</button>
+    </div>
+
+    <!-- VIDEO & AUDIO -->
+    <div id="video" class="section-header">
+      <div class="section-title"><div class="section-title-bar"></div>Video &amp; Audio</div>
+      <a class="section-more" href="#">VIEW ALL →</a>
+    </div>
+    <div class="software-grid">
+
+      <div class="sw-card">
+        <div class="sw-new-badge">NEW</div>
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#001a10,#00402a);">🎞</div>
+          <div class="sw-info">
+            <div class="sw-name">DaVinci Resolve 20</div>
+            <div class="sw-version">v20.0 Free</div>
+          </div>
+        </div>
+        <div class="sw-desc">Hollywood-grade color grading, editing, VFX and audio production — completely free.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">2.4 GB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#1a1500,#3d3200);">🎬</div>
+          <div class="sw-info">
+            <div class="sw-name">Vegas Pro 22</div>
+            <div class="sw-version">v22.0</div>
+          </div>
+        </div>
+        <div class="sw-desc">Feature-rich video editing suite with GPU acceleration and advanced audio mixing tools.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">600 MB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <div class="sw-card">
+        <div class="sw-card-top">
+          <div class="sw-icon" style="background:linear-gradient(135deg,#001218,#002d3d);">🎙</div>
+          <div class="sw-info">
+            <div class="sw-name">OBS Studio</div>
+            <div class="sw-version">v31.0.3</div>
+          </div>
+        </div>
+        <div class="sw-desc">Free and open-source screen recording and live streaming software trusted by millions.</div>
+        <div class="sw-meta">
+          <span class="sw-tag os"><i class="fa-brands fa-windows"></i> Windows</span>
+          <span class="sw-tag size">180 MB</span>
+          <span class="sw-tag bit">64-bit</span>
+        </div>
+        <div class="sw-actions">
+          <a class="btn-dl" href="#"><i class="fa-solid fa-download"></i> Direct Download</a>
+          <button class="btn-save"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+    </div>
+    <div class="load-more">
+      <button class="btn-more"><i class="fa-solid fa-plus"></i> Load More Video &amp; Audio</button>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>© 2026 Free Software Downloads</div>
+  <div class="footer-links">
+    <a href="#">Windows</a>
+    <a href="#">Android</a>
+    <a href="#">macOS</a>
+    <a href="#">Contact</a>
+    <a href="#">Privacy</a>
+  </div>
+</footer>
+
+<script>
+  // Sidebar active link highlight on click
+  document.querySelectorAll('.sidebar-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Nav tab active
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Bookmark toggle
+  document.querySelectorAll('.btn-save').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const icon = this.querySelector('i');
+      icon.classList.toggle('fa-regular');
+      icon.classList.toggle('fa-solid');
+      this.style.color = icon.classList.contains('fa-solid') ? 'var(--accent)' : '';
+      this.style.borderColor = icon.classList.contains('fa-solid') ? 'var(--accent)' : '';
+    });
+  });
+
+  // Search filter
+  const searchInput = document.querySelector('.nav-search input');
+  searchInput.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.sw-card, .sw-featured').forEach(card => {
+      const name = card.querySelector('.sw-name, .sw-featured-name')?.textContent.toLowerCase() || '';
+      const desc = card.querySelector('.sw-desc, .sw-featured-sub')?.textContent.toLowerCase() || '';
+      card.style.display = (!q || name.includes(q) || desc.includes(q)) ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

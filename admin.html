@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naveen • Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+
+        .filter-btn { color: #a1a1aa; transition: all 0.2s ease; }
+        .active-filter { background: #facc15; color: #18181b; border-color: #facc15; }
+
+        .login-card { animation: fadeInScale 0.4s ease forwards; }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.96) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .row-card { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .row-card.dragging { opacity: 0.4; }
+        .row-card.drag-over { border-color: #facc15 !important; }
+
+        .drag-handle { cursor: grab; touch-action: none; }
+        .drag-handle:active { cursor: grabbing; }
+
+        .toast { animation: slideUp 0.3s ease forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input::placeholder, textarea::placeholder { color: #71717a; }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .slide-row { transition: background 0.15s; }
+        .slide-row:hover { background: rgba(255,255,255,0.02); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+    <!-- LOGIN SCREEN -->
+    <section id="login-screen" class="min-h-screen flex items-center justify-center px-6 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black">
+        <div class="login-card w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-10">
+            <div class="flex flex-col items-center mb-8">
+                <div class="w-14 h-14 rounded-2xl bg-yellow-400 flex items-center justify-center mb-5">
+                    <i class="fa-solid fa-lock text-zinc-950 text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-semibold">Admin Login</h1>
+                <p class="text-zinc-500 text-sm mt-1">Sign in to manage the showcase</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-2">Username</label>
+                    <input id="login-username" type="text" autocomplete="username" placeholder="admin"
+                        class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-2">Password</label>
+                    <div class="relative">
+                        <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••"
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-yellow-400 transition-colors">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300">
+                            <i id="pw-eye-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <p id="login-error" class="hidden text-red-400 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>Incorrect username or password.</span>
+                </p>
+                <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-300 text-zinc-950 font-semibold py-3 rounded-xl transition-colors mt-2">
+                    Sign In
+                </button>
+            </form>
+            <a href="Showcasecc.html" class="block text-center text-zinc-500 hover:text-zinc-300 text-sm mt-6 transition-colors">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Back to showcase
+            </a>
+        </div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+    <section id="admin-screen" class="hidden">
+        <header class="border-b border-zinc-800 bg-zinc-900 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center">
+                        <i class="fa-solid fa-pen-ruler text-zinc-950"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-semibold text-lg leading-tight">Showcase Admin</h1>
+                        <p class="text-zinc-500 text-xs">Drag cards to reorder &middot; changes save automatically</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="Showcasecc.html" target="_blank" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 text-sm rounded-xl border border-zinc-700 hover:border-zinc-500 transition-colors">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> View live site
+                    </a>
+                    <button onclick="logout()" class="flex items-center gap-2 px-4 py-2.5 text-sm rounded-xl border border-zinc-700 hover:border-red-400 hover:text-red-400 transition-colors">
+                        <i class="fa-solid fa-right-from-bracket"></i> Log out
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto px-6 py-10">
+                <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+                <div class="flex gap-6" id="stats-row"></div>
+                <div class="flex items-center gap-3">
+                    <button onclick="resetToDefaults()" class="flex items-center gap-2 border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white px-5 py-3 rounded-xl text-sm transition-colors">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+                    </button>
+                    <button onclick="openEditor()" class="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-zinc-950 font-semibold px-6 py-3 rounded-xl transition-colors">
+                        <i class="fa-solid fa-plus"></i> Add Post
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 mb-8" id="admin-filter-buttons">
+                <button onclick="setAdminFilter('all')" class="filter-btn px-5 py-2.5 text-sm rounded-2xl border border-zinc-700">All Posts</button>
+                <button onclick="setAdminFilter('static')" class="filter-btn px-5 py-2.5 text-sm rounded-2xl border border-zinc-700">Static Post</button>
+                <button onclick="setAdminFilter('carousel')" class="filter-btn px-5 py-2.5 text-sm rounded-2xl border border-zinc-700">Carousel</button>
+                <button onclick="setAdminFilter('gif')" class="filter-btn px-5 py-2.5 text-sm rounded-2xl border border-zinc-700">GIF</button>
+                <button onclick="setAdminFilter('video')" class="filter-btn px-5 py-2.5 text-sm rounded-2xl border border-zinc-700">Video</button>
+                <button onclick="setAdminFilter('motion')" class="filter-btn px-5 py-2.5 text-sm rounded-2xl border border-zinc-700">Motion</button>
+            </div>
+
+            <div id="reorder-warning" class="hidden mb-4 flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/30 text-yellow-300 text-sm px-5 py-3 rounded-2xl">
+                <i class="fa-solid fa-info-circle flex-shrink-0"></i>
+                <span>Drag-to-reorder and move arrows only work in <strong>All Posts</strong> view. Switch to "All Posts" to change post order.</span>
+            </div>
+            <div id="post-list" class="space-y-4"></div>
+            <div id="empty-state" class="hidden text-center py-20 border border-dashed border-zinc-800 rounded-3xl">
+                <i class="fa-solid fa-images text-zinc-700 text-4xl mb-4"></i>
+                <p class="text-zinc-400 font-medium">No posts in this category yet.</p>
+                <p class="text-zinc-600 text-sm mt-1">Add a post or pick a different filter.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ADD / EDIT MODAL -->
+    <div id="editor-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+        <div class="login-card w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden max-h-[92vh] flex flex-col">
+            <div class="flex items-center justify-between px-8 py-6 border-b border-zinc-800 flex-shrink-0">
+                <h2 id="editor-heading" class="text-xl font-semibold">Add Post</h2>
+                <button onclick="closeEditor()" class="text-zinc-400 hover:text-white text-2xl transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="editor-form" class="px-8 py-6 space-y-5 overflow-y-auto flex-1">
+                <input type="hidden" id="editor-id">
+
+                <!-- Title -->
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-2">Title</label>
+                    <input id="editor-title" type="text" required placeholder="e.g. Minimal Product Launch"
+                        class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-colors">
+                </div>
+
+                <!-- Category selector -->
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-2">Category</label>
+                    <select id="editor-category" onchange="onCategoryChange()"
+                        class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-colors">
+                        <option value="static">Static Post</option>
+                        <option value="carousel">Carousel</option>
+                        <option value="gif">GIF</option>
+                        <option value="video">Video</option>
+                        <option value="motion">Motion</option>
+                    </select>
+                </div>
+
+                <!-- ── STATIC / GIF: single image URL ── -->
+                <div id="fields-single" class="space-y-3">
+                    <div>
+                        <label id="single-img-label" class="block text-xs font-medium text-zinc-400 mb-2">Image URL</label>
+                        <input id="editor-image" type="url" placeholder="https://example.com/image.jpg"
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-colors">
+                        <p class="text-zinc-600 text-xs mt-1.5">Direct image URL, or paste a Google Drive share link (file must be shared as "Anyone with the link").</p>
+                        <p id="gif-hint" class="hidden text-zinc-600 text-xs mt-1.5">Paste a direct .gif file URL — it will play automatically in the showcase.</p>
+                    </div>
+                    <!-- Single preview -->
+                    <div class="border border-zinc-800 rounded-2xl p-4 flex gap-4 items-center">
+                        <img id="editor-preview" src="" alt="" onerror="this.src=''" class="w-20 h-20 object-cover rounded-xl bg-zinc-950 border border-zinc-800 flex-shrink-0">
+                        <p class="text-zinc-500 text-xs">Preview updates as you type.</p>
+                    </div>
+                </div>
+
+                <!-- ── CAROUSEL: multi-slide builder ── -->
+                <div id="fields-carousel" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-medium text-zinc-400">Slides</label>
+                        <button type="button" onclick="addSlide()"
+                            class="flex items-center gap-1.5 text-xs font-medium text-yellow-400 hover:text-yellow-300 transition-colors">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Add Slide
+                        </button>
+                    </div>
+                    <div id="slide-list" class="space-y-3"></div>
+                    <p class="text-zinc-600 text-xs">Each slide is one image URL. They will be shown as a swipeable carousel in the showcase.</p>
+                </div>
+
+                <!-- ── VIDEO / MOTION: video URL + thumbnail ── -->
+                <div id="fields-video" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-2">Video URL</label>
+                        <input id="editor-video-url" type="url" placeholder="YouTube, Vimeo, or direct .mp4 / .webm link"
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-colors">
+                        <p class="text-zinc-600 text-xs mt-1.5">
+                            Supports: <span class="text-zinc-400">YouTube</span> · <span class="text-zinc-400">Vimeo</span> · direct <span class="text-zinc-400">.mp4 / .webm</span> links
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-2">Thumbnail / Cover Image URL</label>
+                        <input id="editor-thumbnail" type="url" placeholder="https://example.com/cover.jpg (shown on the grid card)"
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-colors">
+                    </div>
+                    <!-- Thumbnail preview -->
+                    <div class="border border-zinc-800 rounded-2xl p-4 flex gap-4 items-center">
+                        <img id="editor-thumb-preview" src="" alt="" onerror="this.src=''" class="w-20 h-20 object-cover rounded-xl bg-zinc-950 border border-zinc-800 flex-shrink-0">
+                        <p class="text-zinc-500 text-xs">Thumbnail preview — this image will appear on the grid card.</p>
+                    </div>
+                </div>
+
+                <!-- Description (all categories) -->
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-2">Description</label>
+                    <textarea id="editor-desc" rows="3" required placeholder="Short description shown on the card and in the lightbox"
+                        class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-yellow-400 transition-colors resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeEditor()" class="px-6 py-3 text-sm rounded-xl border border-zinc-700 hover:border-zinc-500 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 text-sm rounded-xl bg-yellow-400 hover:bg-yellow-300 text-zinc-950 font-semibold transition-colors">
+                        <span id="editor-submit-label">Add Post</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRM MODAL -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4">
+        <div class="login-card w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-red-400/10 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-trash text-red-400"></i>
+            </div>
+            <h3 class="font-semibold text-lg mb-2">Delete this post?</h3>
+            <p class="text-zinc-500 text-sm mb-6">This removes <span id="delete-target-title" class="text-zinc-300 font-medium"></span> from the showcase. This can't be undone.</p>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 text-sm rounded-xl border border-zinc-700 hover:border-zinc-500 transition-colors">Cancel</button>
+                <button onclick="confirmDelete()" class="flex-1 px-4 py-3 text-sm rounded-xl bg-red-500 hover:bg-red-400 text-white font-semibold transition-colors">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[120] bg-zinc-900 border border-zinc-700 px-5 py-3 rounded-xl text-sm font-medium flex items-center gap-2 shadow-2xl"></div>
+
+    <script>
+        const STORAGE_KEY = 'showcase_designs';
+        const AUTH_KEY = 'showcase_admin_auth';
+        const ADMIN_USER = 'admin';
+        const ADMIN_PASS = 'Airtel@123';
+
+        const categoryLabels = { static: 'Static Post', carousel: 'Carousel', gif: 'GIF', video: 'Video', motion: 'Motion' };
+
+        const defaultDesigns = [
+            { id: 1, title: "Minimal Product Launch", category: "static", type: "Static Post", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Product+Launch", desc: "Clean and elegant product announcement post for Instagram." },
+            { id: 2, title: "Brand Story Carousel", category: "carousel", type: "Carousel", images: ["https://placehold.co/1400x1800/1c1c1c/facc15?text=Brand+Story+1","https://placehold.co/1400x1800/111827/facc15?text=Brand+Story+2","https://placehold.co/1400x1800/0f172a/facc15?text=Brand+Story+3"], desc: "6-slide brand journey carousel with smooth storytelling." },
+            { id: 3, title: "Loading Animation GIF", category: "gif", type: "GIF", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=GIF+Animation", desc: "Premium loading animation for better user experience." },
+            { id: 4, title: "Product Explainer Video", category: "video", type: "Video", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Product+Video", desc: "60-second cinematic product explainer video." },
+            { id: 5, title: "Fluid Logo Reveal", category: "motion", type: "Motion", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Logo+Reveal", desc: "Elegant logo animation with fluid motion." },
+            { id: 6, title: "Festival Campaign", category: "static", type: "Static Post", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Festival+Campaign", desc: "Vibrant festival season promotional post." },
+            { id: 7, title: "App Feature Highlights", category: "carousel", type: "Carousel", images: ["https://placehold.co/1400x1800/1c1c1c/facc15?text=App+Feature+1","https://placehold.co/1400x1800/111827/facc15?text=App+Feature+2"], desc: "Feature showcase carousel for mobile app." },
+            { id: 8, title: "Reaction GIF Pack", category: "gif", type: "GIF", image: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Reaction+GIF", desc: "Set of expressive reaction GIFs." },
+            { id: 9, title: "Behind the Scenes", category: "video", type: "Video", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Behind+the+Scenes", desc: "Documentary-style behind the scenes reel." },
+            { id: 10, title: "Kinetic Typography", category: "motion", type: "Motion", videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://placehold.co/1400x1800/1c1c1c/facc15?text=Brand+Story+1", desc: "Dynamic typography animation." }
+        ];
+
+        let designs = [];
+        let adminFilter = 'all';
+        let draggedId = null;
+        let deleteTargetId = null;
+
+        // ---------- Storage ----------
+        function loadDesigns() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                }
+            } catch (e) { console.error(e); }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDesigns));
+            return JSON.parse(JSON.stringify(defaultDesigns));
+        }
+
+        function saveDesigns() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(designs));
+        }
+
+        function nextId() {
+            return designs.length ? Math.max(...designs.map(d => d.id)) + 1 : 1;
+        }
+
+        // ---------- Auth ----------
+        function togglePasswordVisibility() {
+            const input = document.getElementById('login-password');
+            const icon = document.getElementById('pw-eye-icon');
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            icon.className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                sessionStorage.setItem(AUTH_KEY, 'true');
+                errorEl.classList.add('hidden');
+                showAdmin();
+            } else {
+                errorEl.classList.remove('hidden');
+            }
+        });
+
+        function showAdmin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.remove('hidden');
+            designs = loadDesigns();
+            renderStats();
+            renderList();
+            setAdminFilter('all');
+        }
+
+        function logout() {
+            sessionStorage.removeItem(AUTH_KEY);
+            document.getElementById('admin-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        // ---------- Stats ----------
+        function renderStats() {
+            const counts = { static: 0, carousel: 0, gif: 0, video: 0, motion: 0 };
+            designs.forEach(d => { if (counts[d.category] !== undefined) counts[d.category]++; });
+            document.getElementById('stats-row').innerHTML = `
+                <div><p class="text-2xl font-semibold">${designs.length}</p><p class="text-zinc-500 text-xs mt-0.5">Total Posts</p></div>
+                <div class="border-l border-zinc-800 pl-6"><p class="text-2xl font-semibold">${counts.static}</p><p class="text-zinc-500 text-xs mt-0.5">Static</p></div>
+                <div class="border-l border-zinc-800 pl-6"><p class="text-2xl font-semibold">${counts.carousel}</p><p class="text-zinc-500 text-xs mt-0.5">Carousel</p></div>
+                <div class="border-l border-zinc-800 pl-6"><p class="text-2xl font-semibold">${counts.gif}</p><p class="text-zinc-500 text-xs mt-0.5">GIF</p></div>
+                <div class="border-l border-zinc-800 pl-6"><p class="text-2xl font-semibold">${counts.video + counts.motion}</p><p class="text-zinc-500 text-xs mt-0.5">Video / Motion</p></div>
+            `;
+        }
+
+        // ---------- Filter ----------
+        function setAdminFilter(cat) {
+            adminFilter = cat;
+            document.querySelectorAll('#admin-filter-buttons button').forEach(btn => btn.classList.remove('active-filter'));
+            const idx = ['all', 'static', 'carousel', 'gif', 'video', 'motion'].indexOf(cat);
+            document.querySelectorAll('#admin-filter-buttons button')[idx].classList.add('active-filter');
+            document.getElementById('reorder-warning').classList.toggle('hidden', cat === 'all');
+            renderList();
+        }
+
+        // ---------- List ----------
+        function getThumb(d) {
+            if (d.category === 'carousel') return (d.images && d.images[0]) || '';
+            if (d.category === 'video' || d.category === 'motion') return d.thumbnail || '';
+            return d.image || '';
+        }
+
+        function renderList() {
+            const list = document.getElementById('post-list');
+            const visible = adminFilter === 'all' ? designs : designs.filter(d => d.category === adminFilter);
+            document.getElementById('empty-state').classList.toggle('hidden', visible.length !== 0);
+            list.classList.toggle('hidden', visible.length === 0);
+
+            list.innerHTML = visible.map(d => `
+                <div class="row-card bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-4"
+                     draggable="${adminFilter === 'all'}" data-id="${d.id}"
+                     ondragstart="onDragStart(event,${d.id})" ondragover="onDragOver(event)"
+                     ondragleave="onDragLeave(event)" ondrop="onDrop(event,${d.id})" ondragend="onDragEnd(event)">
+                    <div class="drag-handle text-zinc-600 hover:text-zinc-400 px-1 ${adminFilter === 'all' ? '' : 'opacity-30 cursor-not-allowed'}">
+                        <i class="fa-solid fa-grip-vertical text-lg"></i>
+                    </div>
+                    <div class="relative w-16 h-16 flex-shrink-0">
+                        <img src="${escapeAttr(getThumb(d))}" alt="" onerror="this.src=''" class="w-16 h-16 object-cover rounded-xl border border-zinc-800">
+                        ${(d.category==='video'||d.category==='motion') ? '<div class="absolute inset-0 flex items-center justify-center"><i class="fa-solid fa-play text-white text-xs bg-black/60 p-1.5 rounded-full"></i></div>' : ''}
+                        ${d.category==='carousel' ? `<div class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${(d.images||[]).length}✦</div>` : ''}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="font-medium truncate">${escapeHtml(d.title)}</h3>
+                            <span class="text-[11px] font-medium bg-zinc-800 text-yellow-400 px-2.5 py-0.5 rounded-full">${categoryLabels[d.category]||d.type}</span>
+                        </div>
+                        <p class="text-zinc-500 text-sm truncate mt-0.5">${escapeHtml(d.desc)}</p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <button onclick="moveUp(${d.id})" class="w-9 h-9 flex items-center justify-center rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors" title="Move up">
+                            <i class="fa-solid fa-arrow-up text-xs"></i>
+                        </button>
+                        <button onclick="moveDown(${d.id})" class="w-9 h-9 flex items-center justify-center rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors" title="Move down">
+                            <i class="fa-solid fa-arrow-down text-xs"></i>
+                        </button>
+                        <button onclick="openEditor(${d.id})" class="w-9 h-9 flex items-center justify-center rounded-lg border border-zinc-700 hover:border-yellow-400 hover:text-yellow-400 transition-colors" title="Edit">
+                            <i class="fa-solid fa-pen text-xs"></i>
+                        </button>
+                        <button onclick="openDeleteModal(${d.id})" class="w-9 h-9 flex items-center justify-center rounded-lg border border-zinc-700 hover:border-red-400 hover:text-red-400 transition-colors" title="Delete">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ---------- Category-specific form fields ----------
+        function onCategoryChange() {
+            const cat = document.getElementById('editor-category').value;
+            // Hide all
+            document.getElementById('fields-single').classList.add('hidden');
+            document.getElementById('fields-carousel').classList.add('hidden');
+            document.getElementById('fields-video').classList.add('hidden');
+            document.getElementById('gif-hint').classList.add('hidden');
+
+            if (cat === 'static') {
+                document.getElementById('fields-single').classList.remove('hidden');
+                document.getElementById('single-img-label').textContent = 'Image URL';
+                document.getElementById('editor-image').required = true;
+            } else if (cat === 'gif') {
+                document.getElementById('fields-single').classList.remove('hidden');
+                document.getElementById('single-img-label').textContent = 'GIF File URL';
+                document.getElementById('gif-hint').classList.remove('hidden');
+                document.getElementById('editor-image').required = true;
+            } else if (cat === 'carousel') {
+                document.getElementById('fields-carousel').classList.remove('hidden');
+                document.getElementById('editor-image').required = false;
+            } else {
+                // video / motion
+                document.getElementById('fields-video').classList.remove('hidden');
+                document.getElementById('editor-image').required = false;
+            }
+        }
+
+        // ---------- Slide builder ----------
+        let slides = []; // array of URL strings
+
+        function renderSlides() {
+            document.getElementById('slide-list').innerHTML = slides.map((url, i) => `
+                <div class="slide-row flex items-center gap-3 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3">
+                    <span class="text-zinc-600 text-xs font-mono w-5 text-center">${i+1}</span>
+                    <img src="${escapeAttr(convertGoogleDriveLink(url))}" onerror="this.src=''" class="w-10 h-10 object-cover rounded-lg border border-zinc-800 flex-shrink-0">
+                    <input type="url" value="${escapeAttr(url)}" placeholder="https://example.com/slide-${i+1}.jpg"
+                        oninput="updateSlide(${i}, this.value)"
+                        class="flex-1 bg-transparent text-sm text-zinc-300 focus:outline-none focus:text-white transition-colors min-w-0">
+                    <button type="button" onclick="removeSlide(${i})" class="text-zinc-600 hover:text-red-400 transition-colors flex-shrink-0">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addSlide() {
+            slides.push('');
+            renderSlides();
+            // Focus the new input
+            const inputs = document.getElementById('slide-list').querySelectorAll('input');
+            if (inputs.length) inputs[inputs.length - 1].focus();
+        }
+
+        function updateSlide(i, val) {
+            slides[i] = val;
+            // Update preview image inline
+            const rows = document.getElementById('slide-list').children;
+            if (rows[i]) {
+                const img = rows[i].querySelector('img');
+                if (img) img.src = convertGoogleDriveLink(val);
+            }
+        }
+
+        function removeSlide(i) {
+            slides.splice(i, 1);
+            renderSlides();
+        }
+
+        // ---------- Editor open/close ----------
+        function openEditor(id) {
+            const form = document.getElementById('editor-form');
+            form.reset();
+            slides = [];
+            document.getElementById('editor-preview').src = '';
+            document.getElementById('editor-thumb-preview').src = '';
+
+            if (id) {
+                const d = designs.find(x => x.id === id);
+                if (!d) return;
+                document.getElementById('editor-heading').textContent = 'Edit Post';
+                document.getElementById('editor-submit-label').textContent = 'Save Changes';
+                document.getElementById('editor-id').value = d.id;
+                document.getElementById('editor-title').value = d.title;
+                document.getElementById('editor-category').value = d.category;
+                document.getElementById('editor-desc').value = d.desc;
+
+                if (d.category === 'static' || d.category === 'gif') {
+                    document.getElementById('editor-image').value = d.image || '';
+                    document.getElementById('editor-preview').src = d.image || '';
+                } else if (d.category === 'carousel') {
+                    slides = d.images ? [...d.images] : [];
+                } else {
+                    document.getElementById('editor-video-url').value = d.videoUrl || '';
+                    document.getElementById('editor-thumbnail').value = d.thumbnail || '';
+                    document.getElementById('editor-thumb-preview').src = d.thumbnail || '';
+                }
+            } else {
+                document.getElementById('editor-heading').textContent = 'Add Post';
+                document.getElementById('editor-submit-label').textContent = 'Add Post';
+                document.getElementById('editor-id').value = '';
+            }
+
+            onCategoryChange();
+            renderSlides();
+
+            document.getElementById('editor-modal').classList.remove('hidden');
+            document.getElementById('editor-modal').classList.add('flex');
+        }
+
+        function closeEditor() {
+            document.getElementById('editor-modal').classList.add('hidden');
+            document.getElementById('editor-modal').classList.remove('flex');
+        }
+
+        // Live preview for single image
+        document.getElementById('editor-image').addEventListener('input', (e) => {
+            document.getElementById('editor-preview').src = convertGoogleDriveLink(e.target.value);
+        });
+
+        // Live preview for thumbnail
+        document.getElementById('editor-thumbnail').addEventListener('input', (e) => {
+            document.getElementById('editor-thumb-preview').src = convertGoogleDriveLink(e.target.value);
+        });
+
+        // ---------- Form submit ----------
+        document.getElementById('editor-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editor-id').value;
+            const category = document.getElementById('editor-category').value;
+            const title = document.getElementById('editor-title').value.trim();
+            const desc = document.getElementById('editor-desc').value.trim();
+
+            let payload = { title, category, type: categoryLabels[category], desc };
+
+            if (category === 'static' || category === 'gif') {
+                const img = document.getElementById('editor-image').value.trim();
+                if (!img) { alert('Please enter an image URL.'); return; }
+                payload.image = convertGoogleDriveLink(img);
+            } else if (category === 'carousel') {
+                const validSlides = slides.map(s => convertGoogleDriveLink(s.trim())).filter(Boolean);
+                if (validSlides.length < 1) { alert('Add at least one slide image URL.'); return; }
+                payload.images = validSlides;
+            } else {
+                const vUrl = document.getElementById('editor-video-url').value.trim();
+                if (!vUrl) { alert('Please enter a video URL.'); return; }
+                payload.videoUrl = vUrl;
+                payload.thumbnail = convertGoogleDriveLink(document.getElementById('editor-thumbnail').value.trim());
+            }
+
+            if (id) {
+                const idx = designs.findIndex(d => d.id === Number(id));
+                if (idx !== -1) {
+                    // Clear old media fields to avoid stale data
+                    delete designs[idx].image;
+                    delete designs[idx].images;
+                    delete designs[idx].videoUrl;
+                    delete designs[idx].thumbnail;
+                    designs[idx] = { ...designs[idx], ...payload };
+                }
+                showToast('Post updated', 'fa-solid fa-circle-check');
+            } else {
+                designs.push({ id: nextId(), ...payload });
+                showToast('Post added', 'fa-solid fa-circle-check');
+            }
+
+            saveDesigns();
+            renderStats();
+            renderList();
+            closeEditor();
+        });
+
+        // ---------- Delete ----------
+        function openDeleteModal(id) {
+            const d = designs.find(x => x.id === id);
+            if (!d) return;
+            deleteTargetId = id;
+            document.getElementById('delete-target-title').textContent = `"${d.title}"`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('delete-modal').classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            document.getElementById('delete-modal').classList.add('hidden');
+            document.getElementById('delete-modal').classList.remove('flex');
+        }
+
+        function confirmDelete() {
+            if (deleteTargetId === null) return;
+            designs = designs.filter(d => d.id !== deleteTargetId);
+            saveDesigns(); renderStats(); renderList(); closeDeleteModal();
+            showToast('Post deleted', 'fa-solid fa-trash');
+        }
+
+        // ---------- Reset to defaults ----------
+        function resetToDefaults() {
+            if (!confirm('Reset all posts to default sample data? This cannot be undone.')) return;
+            designs = JSON.parse(JSON.stringify(defaultDesigns));
+            saveDesigns(); renderStats(); renderList();
+            showToast('Reset to defaults', 'fa-solid fa-rotate-left');
+        }
+
+        // ---------- Reorder ----------
+        function moveUp(id) {
+            if (adminFilter !== 'all') { showToast('Switch to "All Posts" to reorder', 'fa-solid fa-triangle-exclamation'); return; }
+            const idx = designs.findIndex(d => d.id === id);
+            if (idx <= 0) return;
+            [designs[idx-1], designs[idx]] = [designs[idx], designs[idx-1]];
+            saveDesigns(); renderList();
+            showToast('Order updated', 'fa-solid fa-arrow-up');
+        }
+
+        function moveDown(id) {
+            if (adminFilter !== 'all') { showToast('Switch to "All Posts" to reorder', 'fa-solid fa-triangle-exclamation'); return; }
+            const idx = designs.findIndex(d => d.id === id);
+            if (idx === -1 || idx >= designs.length - 1) return;
+            [designs[idx+1], designs[idx]] = [designs[idx], designs[idx+1]];
+            saveDesigns(); renderList();
+            showToast('Order updated', 'fa-solid fa-arrow-down');
+        }
+
+        function onDragStart(e, id) {
+            if (adminFilter !== 'all') { e.preventDefault(); return; }
+            draggedId = id;
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        function onDragOver(e) {
+            if (adminFilter !== 'all') return;
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+        function onDrop(e, targetId) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            if (adminFilter !== 'all' || draggedId === null || draggedId === targetId) return;
+            const fromIdx = designs.findIndex(d => d.id === draggedId);
+            const toIdx = designs.findIndex(d => d.id === targetId);
+            if (fromIdx === -1 || toIdx === -1) return;
+            const [moved] = designs.splice(fromIdx, 1);
+            designs.splice(toIdx, 0, moved);
+            saveDesigns(); renderList();
+            showToast('Order updated', 'fa-solid fa-arrows-up-down');
+        }
+        function onDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.row-card').forEach(el => el.classList.remove('drag-over'));
+            draggedId = null;
+        }
+
+        // ---------- Toast ----------
+        let toastTimer = null;
+        function showToast(message, icon) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="${icon} text-yellow-400"></i><span>${escapeHtml(message)}</span>`;
+            toast.classList.remove('hidden');
+            toast.classList.add('toast');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.add('hidden'), 2200);
+        }
+
+        // ---------- Google Drive link converter ----------
+        // Lets the admin paste a normal Google Drive "share" link and have it
+        // work as an image src. Drive share/view links aren't directly loadable
+        // by <img> tags, so we detect the file ID and rewrite it into Drive's
+        // thumbnail endpoint, which IS directly embeddable.
+        // Note: the file must be shared as "Anyone with the link" can view.
+        function convertGoogleDriveLink(url) {
+            if (!url) return url;
+            url = url.trim();
+            if (!url.includes('drive.google.com')) return url; // not a Drive link, leave untouched
+
+            let fileId = null;
+            let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);      // /file/d/FILE_ID/view?usp=sharing
+            if (m) fileId = m[1];
+            if (!fileId) { m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/); if (m) fileId = m[1]; } // ?id=FILE_ID / open?id=FILE_ID
+            if (!fileId) { m = url.match(/\/d\/([a-zA-Z0-9_-]+)/); if (m) fileId = m[1]; }   // /d/FILE_ID
+
+            if (!fileId) return url; // couldn't parse a file ID, leave as-is
+
+            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+        }
+
+        // ---------- Helpers ----------
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        function escapeAttr(str) { return escapeHtml(str); }
+
+        // ---------- Keyboard / backdrop ----------
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { closeEditor(); closeDeleteModal(); }
+        });
+        document.getElementById('editor-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('editor-modal')) closeEditor();
+        });
+        document.getElementById('delete-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('delete-modal')) closeDeleteModal();
+        });
+
+        // ---------- Init ----------
+        window.onload = () => {
+            if (sessionStorage.getItem(AUTH_KEY) === 'true') showAdmin();
+        };
+    </script>
+</body>
+</html>
